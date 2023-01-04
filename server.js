@@ -4,10 +4,23 @@ const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-const cors = require('cors')
+const cors = require("cors");
 
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: function (req, file, cb) {
+    const folder = req.params[0];
+    if (folder) {
+      const folderPath = path.join(__dirname, `/uploads/${folder}`);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, {
+          recursive: true,
+        });
+      }
+      cb(null, folderPath);
+    } else {
+      cb(null, path.join(__dirname, `/uploads`));
+    }
+  },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}_${file.originalname}`);
   },
@@ -17,53 +30,71 @@ const upload = multer({ storage });
 
 const app = express();
 
-app.use(cors())
+app.use(cors());
 
 app.use(express.static("uploads"));
 
-app.post("/", upload.single("file"), function (req, res, next) {
-  res.json({
-    status: "success",
-    path: req.file.filename,
-    url: `${req.protocol}://${req.get("host")}/${req.file.filename}`,
-  });
+app.post("/*", upload.single("file"), function (req, res, next) {
+  if (req.file) {
+    const path = req.file.path.split("/usr/src/app/uploads/")[1];
+    res.json({
+      status: "success",
+      path,
+      url: `${req.protocol}://${req.get("host")}/${path}`,
+    });
+  } else {
+    res
+      .status(401)
+      .send({ status: "error", message: "The file field is required." });
+  }
 });
 
-app.put("/", function (req, res, next) {
-  const filename = req.query.filename;
+app.put(["/*/:filename", "/:filename"], function (req, res, next) {
+  if (req.headers["content-type"]) {
+    const filename = req.params.filename;
 
-  if (!filename) {
-    res.status(401).send({ status: "error", message: "File Name required" });
-  }
-
-  const folder = req.query.folder;
-
-  if (folder) {
-    if (!fs.existsSync(path.join(__dirname, `/uploads/${folder}`))) {
-      fs.mkdirSync(path.join(__dirname, `/uploads/${folder}`));
+    if (!filename) {
+      res
+        .status(401)
+        .send({ status: "error", message: "The filename is required." });
     }
-  }
 
-  const objectKey = folder
-    ? `${folder}/${Date.now()}_${filename}`
-    : `${Date.now()}_${filename}`;
+    const folder = req.params[0];
 
-  const filePath = path.join(__dirname, `./uploads/${objectKey}`);
-  const stream = fs.createWriteStream(filePath);
+    if (folder) {
+      const folderPath = path.join(__dirname, `/uploads/${folder}`);
+      if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, {
+          recursive: true,
+        });
+      }
+    }
 
-  stream.on("open", () => req.pipe(stream));
+    const objectKey = folder
+      ? `${folder}/${Date.now()}_${filename}`
+      : `${Date.now()}_${filename}`;
 
-  stream.on("close", () => {
-    res.status(200).send({
-      status: "success",
-      path: objectKey,
-      url: `${req.protocol}://${req.get("host")}/${objectKey}`,
+    const filePath = path.join(__dirname, `./uploads/${objectKey}`);
+    const stream = fs.createWriteStream(filePath);
+
+    stream.on("open", () => req.pipe(stream));
+
+    stream.on("close", () => {
+      res.status(200).send({
+        status: "success",
+        path: objectKey,
+        url: `${req.protocol}://${req.get("host")}/${objectKey}`,
+      });
     });
-  });
 
-  stream.on("error", (err) => {
-    res.status(500).send({ status: "error", err });
-  });
+    stream.on("error", (err) => {
+      res.status(500).send({ status: "error", err });
+    });
+  } else {
+    res
+      .status(401)
+      .send({ status: "error", message: "The binary file is required." });
+  }
 });
 
 const PORT = 8080;

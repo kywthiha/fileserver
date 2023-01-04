@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-RUN npm install -qy
+RUN npm install -qy2
 
 COPY . .
 
