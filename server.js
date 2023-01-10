@@ -37,7 +37,9 @@ app.use(cors());
 app.use(express.static("uploads"));
 
 app.use((req, res, next) => {
-  if (req.headers.authorization) {
+  if (req.method == "GET") {
+    next();
+  } else if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
     if (token) {
       jwt.verify(
