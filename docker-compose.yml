@@ -8,16 +8,17 @@ services:
       - uploads:/usr/src/app/uploads
     ports:
       - "8080:8080"
-    restart: always
+    env_file:
+      - .env
     deploy:
       resources:
         limits:
           cpus: '0.25'
           memory: 100M
 volumes:
-    uploads:
-      driver: local
-      driver_opts:
-        type: none
-        o: bind
-        device: /home/dell/Desktop/uploads
+  uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dell/Desktop/uploads
