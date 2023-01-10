@@ -1,10 +1,12 @@
 "use strict";
 
+require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -33,6 +35,31 @@ const app = express();
 app.use(cors());
 
 app.use(express.static("uploads"));
+
+app.use((req, res, next) => {
+  if (req.headers.authorization) {
+    const token = req.headers.authorization.split(" ")[1];
+    if (token) {
+      jwt.verify(
+        token,
+        process.env.JWT_ACCESS_SECRET,
+        { ignoreExpiration: true },
+        function (err, decoded) {
+          if (err) {
+            return res
+              .status(401)
+              .json({ statusCode: 401, message: "Unauthorized" });
+          }
+          next();
+        }
+      );
+    } else {
+      return res.status(401).json({ statusCode: 401, message: "Unauthorized" });
+    }
+  } else {
+    return res.status(401).json({ statusCode: 401, message: "Unauthorized" });
+  }
+});
 
 app.post("/*", upload.single("file"), function (req, res, next) {
   if (req.file) {

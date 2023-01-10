@@ -1,8 +1,7 @@
 version: '3.8'
 services:
   fileserver:
-    container_name: fileserver
-    build: .
+    image: kyawthihadev/fileserver:latest
     volumes:
       - .:/usr/src/app
       - uploads:/usr/src/app/uploads
@@ -15,9 +14,9 @@ services:
           cpus: '0.25'
           memory: 100M
 volumes:
-    uploads:
-      driver: local
-      driver_opts:
-        type: none
-        o: bind
-        device: /home/dell/Desktop/uploads
+  uploads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /root/uploads

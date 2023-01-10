@@ -1,7 +1,5 @@
 FROM node:18-alpine
 
-ENV NODE_ENV=production
-
 WORKDIR /usr/src/app
 
 COPY package.json ./
@@ -9,6 +7,10 @@ COPY package.json ./
 RUN npm install -qy2
 
 COPY . .
+
+ENV NODE_ENV=production
+
+RUN npm ci --only=production && npm cache clean --force
 
 EXPOSE 8080
 
