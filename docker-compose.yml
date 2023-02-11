@@ -5,20 +5,10 @@ services:
     build: .
     volumes:
       - .:/usr/src/app
-      - uploads:/usr/src/app/uploads
+      - ./uploads:/usr/src/app/uploads
     ports:
       - "8080:8080"
     env_file:
       - .env
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 100M
-volumes:
-  uploads:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/dell/Desktop/uploads
+    restart: always 
+

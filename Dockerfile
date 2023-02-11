@@ -12,6 +12,8 @@ ENV NODE_ENV=production
 
 RUN npm ci --only=production && npm cache clean --force
 
+RUN npm install pm2 -g
+
 EXPOSE 8080
 
-CMD [ "node", "server.js" ]
+CMD [ "pm2-runtime", "server.js", '-i', 'max' ]
