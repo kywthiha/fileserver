@@ -4,11 +4,10 @@ services:
     container_name: fileserver
     build: .
     volumes:
-      - .:/usr/src/app
       - ./uploads:/usr/src/app/uploads
     ports:
       - "8080:8080"
     env_file:
       - .env
-    restart: always 
+    # restart: always 
 

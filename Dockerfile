@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /usr/src/app
 
@@ -16,4 +16,4 @@ RUN npm install pm2 -g
 
 EXPOSE 8080
 
-CMD [ "pm2-runtime", "server.js", '-i', 'max' ]
+CMD [ "pm2-runtime", "server.js", "-i", "max" ]
