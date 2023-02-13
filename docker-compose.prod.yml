@@ -1,24 +1,11 @@
 version: '3.8'
 services:
   fileserver:
-    image: kyawthihadev/fileserver:latest
+    image: kyawthihadev/fileserver:main
     volumes:
-      - .:/usr/src/app
-      - uploads:/usr/src/app/uploads
+      - /root/uploads:/usr/src/app/uploads
     ports:
       - "8080:8080"
     env_file:
       - .env
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.25'
-          memory: 100M
-volumes:
-  uploads:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /root/uploads
