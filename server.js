@@ -65,11 +65,13 @@ app.use((req, res, next) => {
 
 app.post("/*", upload.single("file"), function (req, res, next) {
   if (req.file) {
-    const path = req.file.path.split("/usr/src/app/uploads/")[1];
+    console.log(path.join(__dirname, `/uploads/`),req.file.path)
+    const filePath = req.file.path.split(path.join(__dirname, `/uploads/`))[1];
+    console.log(filePath)
     res.json({
       status: "success",
-      path,
-      url: `${req.protocol}://${req.get("host")}/${path}`,
+      path:filePath,
+      url: `${req.protocol}://${req.get("host")}/${filePath}`,
     });
   } else {
     res
